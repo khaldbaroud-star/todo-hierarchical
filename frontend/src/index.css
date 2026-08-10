@@ -1,0 +1,68 @@
+:root {
+  /* الألوان — مستوحاة من حلقات نمو جذع الشجرة، تعكس بنية المهام الهرمية */
+  --color-canvas: #eeebe2;       /* خلفية عامة - ورق دافئ */
+  --color-surface: #ffffff;      /* بطاقات وصفوف */
+  --color-ink: #2b2a25;          /* نص أساسي */
+  --color-ink-soft: #726e5e;     /* نص ثانوي */
+  --color-line: #dedacb;         /* خطوط فاصلة فاتحة */
+
+  --color-growth: #4b6650;       /* أخضر الصنوبر - إنجاز/نمو */
+  --color-growth-soft: #dce5da;
+
+  --color-amber: #c97b2e;        /* كهرماني - تنبيه لطيف/متأخر */
+  --color-amber-soft: #f3e3cc;
+
+  --color-brick: #a23b3b;        /* أحمر مطفأ - ضائع/متروك */
+  --color-brick-soft: #f1dcda;
+
+  --font-display: 'Markazi Text', serif;
+  --font-body: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-card: 0 1px 2px rgba(43, 42, 37, 0.06), 0 1px 1px rgba(43, 42, 37, 0.04);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  direction: rtl;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+select {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-growth);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

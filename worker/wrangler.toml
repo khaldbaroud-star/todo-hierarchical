@@ -1,0 +1,8 @@
+name = "todo-worker"
+main = "src/index.js"
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "todo-db"
+database_id = "3493aa06-eb4b-4e41-846c-62e92388a62c"
