@@ -37,7 +37,7 @@ export default function App() {
           display: 'flex',
           gap: 4,
           justifyContent: 'center',
-          padding: '14px 12px',
+          padding: 'calc(14px + env(safe-area-inset-top)) 12px 14px',
           background: 'var(--color-surface)',
           borderBottom: '1px solid var(--color-line)',
           position: 'sticky',
