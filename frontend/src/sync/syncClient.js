@@ -28,3 +28,30 @@ export async function pushTasks(deviceId, tasks) {
   const data = await res.json();
   return data.synced;
 }
+/**
+ * سحب القوائم من الخادم.
+ */
+export async function pullLists(deviceId) {
+  const res = await fetch(`${API_BASE}/api/lists?device_id=${encodeURIComponent(deviceId)}`);
+  if (!res.ok) {
+    throw new Error(`فشل سحب القوائم من الخادم (${res.status})`);
+  }
+  const data = await res.json();
+  return data.lists;
+}
+
+/**
+ * دفع القوائم للخادم.
+ */
+export async function pushLists(deviceId, lists) {
+  const res = await fetch(`${API_BASE}/api/lists/sync`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ device_id: deviceId, lists }),
+  });
+  if (!res.ok) {
+    throw new Error(`فشل دفع القوائم للخادم (${res.status})`);
+  }
+  const data = await res.json();
+  return data.synced;
+}

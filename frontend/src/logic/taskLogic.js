@@ -1,5 +1,4 @@
-import { db } from '../db/db';
-
+import { db, DEFAULT_LIST_ID } from '../db/db';
 // ============================================================
 // أدوات مساعدة داخلية
 // ============================================================
@@ -180,6 +179,7 @@ export async function createTask({
   parentId = null,
   dueDate,
   addToDaily = false,
+  listId = DEFAULT_LIST_ID,
 }) {
   if (!title || !dueDate) {
     throw new Error('العنوان وتاريخ الاستحقاق مطلوبان');
@@ -193,6 +193,7 @@ export async function createTask({
     title,
     type,
     parent_id: parentId,
+    list_id: parentId ? null : listId, // القوائم للمهام الجذرية فقط
     due_date: dueDate,
     original_due_date: dueDate,
     status: 'pending',
@@ -356,5 +357,69 @@ export function classifyForStats(task) {
   if (task.status === 'completed') {
     return isMissed(task) ? 'missed_then_completed' : 'completed';
   }
+
+
+
+  // ============================================================
+// إدارة القوائم (Lists)
+// ============================================================
+
+export async function getLists() {
+  const lists = await db.lists.toArray();
+  return lists.filter((l) => !l.deleted).sort((a, b) => a.order_index - b.order_index);
+}
+
+export async function createList(name) {
+  if (!name || !name.trim()) {
+    throw new Error('اسم القائمة مطلوب');
+  }
+
+  const existing = await getLists();
+  const id = crypto.randomUUID();
+  const now = nowISO();
+
+  const list = {
+    id,
+    name: name.trim(),
+    color: null,
+    order_index: existing.length,
+    deleted: false,
+    created_at: now,
+    updated_at: now,
+  };
+
+  await db.lists.add(list);
+  return list;
+}
+
+export async function renameList(listId, newName) {
+  if (!newName || !newName.trim()) {
+    throw new Error('اسم القائمة مطلوب');
+  }
+  await db.lists.update(listId, { name: newName.trim(), updated_at: nowISO() });
+}
+
+
   return null;
+}
+/**
+ * حذف قائمة (Soft delete) - المهام الجذرية التي كانت بداخلها تُنقل تلقائياً
+ * للقائمة الافتراضية "عام" حتى لا "تضيع" أو تصبح بلا قائمة ظاهرة.
+ * لا يجوز حذف القائمة الافتراضية نفسها.
+ */
+export async function deleteList(listId) {
+  if (listId === DEFAULT_LIST_ID) {
+    throw new Error('لا يمكن حذف القائمة الافتراضية');
+  }
+
+  const now = nowISO();
+
+  await db.transaction('rw', db.lists, db.tasks, async () => {
+    await db.lists.update(listId, { deleted: true, updated_at: now });
+
+    const affectedTasks = await db.tasks.where('list_id').equals(listId).toArray();
+    for (const t of affectedTasks) {
+      await db.tasks.update(t.id, { list_id: DEFAULT_LIST_ID, updated_at: now });
+    }
+  });
 }

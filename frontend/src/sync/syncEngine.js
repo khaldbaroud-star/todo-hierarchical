@@ -1,6 +1,6 @@
 import { db } from '../db/db';
 import { getDeviceId } from '../db/deviceId';
-import { pullTasks, pushTasks } from './syncClient';
+import { pullTasks, pushTasks, pullLists, pushLists } from './syncClient';
 
 /**
  * مزامنة كاملة عند الطلب (وليست طابور تغييرات لكل حركة صغيرة):
@@ -18,7 +18,11 @@ export async function syncNow() {
   const localTasks = await db.tasks.toArray();
   await pushTasks(deviceId, localTasks);
 
+  const localLists = await db.lists.toArray();
+  await pushLists(deviceId, localLists);
+
   const serverTasks = await pullTasks(deviceId);
+  const serverLists = await pullLists(deviceId);
 
   let updatedCount = 0;
   for (const serverTask of serverTasks) {
@@ -26,6 +30,13 @@ export async function syncNow() {
     if (!localTask || serverTask.updated_at > localTask.updated_at) {
       await db.tasks.put(serverTask);
       updatedCount++;
+    }
+  }
+
+  for (const serverList of serverLists) {
+    const localList = await db.lists.get(serverList.id);
+    if (!localList || serverList.updated_at > localList.updated_at) {
+      await db.lists.put(serverList);
     }
   }
 

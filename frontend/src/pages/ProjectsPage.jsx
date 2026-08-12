@@ -1,24 +1,36 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/db';
+import { db, DEFAULT_LIST_ID } from '../db/db';
 import TaskTree from '../components/TaskTree';
 import QuickAdd from '../components/QuickAdd';
-import { createTask } from '../logic/taskLogic';
-
+import ListSwitcher from '../components/ListSwitcher';
+import { createTask, createList } from '../logic/taskLogic';
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
 export default function ProjectsPage() {
   const rawTasks = useLiveQuery(() => db.tasks.toArray(), []) || [];
+  const rawLists = useLiveQuery(() => db.lists.toArray(), []) || [];
+  const lists = rawLists.filter((l) => !l.deleted).sort((a, b) => a.order_index - b.order_index);
+
+  const [selectedListId, setSelectedListId] = useState(DEFAULT_LIST_ID);
+
   const allTasks = rawTasks.filter((t) => !t.deleted);
-  const rootTasksAll = allTasks.filter((t) => !t.parent_id);
+  const rootTasksAll = allTasks
+    .filter((t) => !t.parent_id)
+    .filter((t) => (t.list_id || DEFAULT_LIST_ID) === selectedListId);
   const rootTasks = rootTasksAll.filter((t) => t.status !== 'completed');
   const completedRootTasks = rootTasksAll.filter((t) => t.status === 'completed');
   const [showCompleted, setShowCompleted] = useState(false);
 
   async function handleAdd({ title, type }) {
-    await createTask({ title, type, parentId: null, dueDate: todayStr(), addToDaily: false });
+    await createTask({ title, type, parentId: null, dueDate: todayStr(), addToDaily: false, listId: selectedListId });
+  }
+
+  async function handleCreateList(name) {
+    const list = await createList(name);
+    setSelectedListId(list.id);
   }
 
   return (
@@ -27,6 +39,12 @@ export default function ProjectsPage() {
       <p style={{ color: 'var(--color-ink-soft)', marginTop: 4, marginBottom: 28 }}>
         كل مهامك، فردية ومركبة، بأي عمق تعشيش
       </p>
+      <ListSwitcher
+        lists={lists}
+        selectedListId={selectedListId}
+        onSelect={setSelectedListId}
+        onCreate={handleCreateList}
+      />
 
       <QuickAdd allowType onAdd={handleAdd} placeholder="اكتب اسم مهمة أو مشروع جديد…" />
 
