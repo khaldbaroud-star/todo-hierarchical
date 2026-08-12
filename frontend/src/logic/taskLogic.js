@@ -354,9 +354,13 @@ export function isMissed(task) {
  */
 export function classifyForStats(task) {
   if (task.status === 'abandoned') return 'abandoned';
+
   if (task.status === 'completed') {
     return isMissed(task) ? 'missed_then_completed' : 'completed';
   }
+
+  return null;
+}
 
 
 
@@ -400,8 +404,6 @@ export async function renameList(listId, newName) {
 }
 
 
-  return null;
-}
 /**
  * حذف قائمة (Soft delete) - المهام الجذرية التي كانت بداخلها تُنقل تلقائياً
  * للقائمة الافتراضية "عام" حتى لا "تضيع" أو تصبح بلا قائمة ظاهرة.
