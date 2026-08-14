@@ -1,4 +1,5 @@
-import { db, DEFAULT_LIST_ID } from '../db/db';
+import { db } from '../db/db';
+
 // ============================================================
 // أدوات مساعدة داخلية
 // ============================================================
@@ -39,9 +40,10 @@ async function collectLeaves(taskId) {
 
 /**
  * يجمع IDs كل الأحفاد (وليس الأوراق فقط) تحت مهمة معيّنة، بأي عمق تعشيش.
- * يُستخدم لتفعيل "الربط التصاعدي" باليوميات: ربط/فك ربط مركبة يشمل كل فروعها.
+ * يُستخدم لتفعيل "الربط التصاعدي" باليوميات: ربط/فك ربط مركبة يشمل كل فروعها،
+ * وأيضاً لحذف قائمة كاملة (listLogic.js) حيث نحتاج حذف كل أبناء كل مهمة جذرية.
  */
-async function collectAllDescendantIds(taskId) {
+export async function collectAllDescendantIds(taskId) {
   const children = await getChildren(taskId);
   let ids = [];
   for (const child of children) {
@@ -172,6 +174,10 @@ export async function abandonTask(taskId) {
  * ينشئ مهمة جديدة (فردية أو مركبة، جذر أو فرعية).
  * إذا كانت فرعية تحت مركّبة مكتملة سابقاً بنسبة 100%، يُعاد حساب والدها
  * فوراً حتى تتراجع المركبة تلقائياً عن حالة "منجزة" (بفضل التصحيح أعلاه).
+ *
+ * listId: مطلوب فقط عند إنشاء مهمة جذرية (parentId = null)، لأن كل مهمة
+ * جذرية يجب أن تنتمي لقائمة. المهام الفرعية ترث انتماءها لقائمة أقرب جد
+ * جذري لها ضمنياً (بلا حاجة لتخزين list_id بها بشكل مباشر).
  */
 export async function createTask({
   title,
@@ -179,10 +185,13 @@ export async function createTask({
   parentId = null,
   dueDate,
   addToDaily = false,
-  listId = DEFAULT_LIST_ID,
+  listId = null,
 }) {
   if (!title || !dueDate) {
     throw new Error('العنوان وتاريخ الاستحقاق مطلوبان');
+  }
+  if (!parentId && !listId) {
+    throw new Error('المهام الجذرية يجب أن تنتمي لقائمة (listId مطلوب)');
   }
 
   const id = crypto.randomUUID();
@@ -193,7 +202,7 @@ export async function createTask({
     title,
     type,
     parent_id: parentId,
-    list_id: parentId ? null : listId, // القوائم للمهام الجذرية فقط
+    list_id: parentId ? null : listId,
     due_date: dueDate,
     original_due_date: dueDate,
     status: 'pending',
@@ -241,10 +250,6 @@ export async function deleteTask(taskId) {
 // الربط/فك الربط بقائمة اليوميات (قاعدة 5)
 // ============================================================
 
-/**
- * "نقل" مهمة فرعية لليوميات - نفس الكيان (نفس id)، فقط تُعلَّم كمربوطة.
- * أي تغيير حالة لاحق عليها ينعكس تلقائياً في كل مكان (لأنها ليست نسخة).
- */
 /**
  * "نقل" مهمة لليوميات - نفس الكيان (نفس id)، فقط تُعلَّم كمربوطة.
  * إذا كانت هذه مهمة مركبة، يُربط معها **كل فروعها المتعشّشة تلقائياً**
@@ -299,7 +304,8 @@ export async function rescheduleTask(taskId, newDueDate) {
  * يرجع كل المهام التي تظهر في "شاشة اليوم" لتاريخ معيّن.
  * القاعدة موحّدة الآن لكل الأنواع: تظهر المهمة في اليوميات إذا وفقط إذا
  * كانت is_in_daily_list = true (بغض النظر عن type أو كونها جذرية أو فرعية).
- * الربط والفك يدويان بالكامل ومتاحان لأي مهمة.
+ * الربط والفك يدويان بالكامل ومتاحان لأي مهمة، بغض النظر عن القائمة التي
+ * تنتمي إليها - شاشة اليوم موحّدة عبر كل القوائم بقرار تصميمي.
  */
 export async function getDailyList(dateStr = todayStr()) {
   const tasksForDate = await db.tasks.where('due_date').equals(dateStr).toArray();
@@ -354,74 +360,8 @@ export function isMissed(task) {
  */
 export function classifyForStats(task) {
   if (task.status === 'abandoned') return 'abandoned';
-
   if (task.status === 'completed') {
     return isMissed(task) ? 'missed_then_completed' : 'completed';
   }
-
   return null;
-}
-
-
-
-  // ============================================================
-// إدارة القوائم (Lists)
-// ============================================================
-
-export async function getLists() {
-  const lists = await db.lists.toArray();
-  return lists.filter((l) => !l.deleted).sort((a, b) => a.order_index - b.order_index);
-}
-
-export async function createList(name) {
-  if (!name || !name.trim()) {
-    throw new Error('اسم القائمة مطلوب');
-  }
-
-  const existing = await getLists();
-  const id = crypto.randomUUID();
-  const now = nowISO();
-
-  const list = {
-    id,
-    name: name.trim(),
-    color: null,
-    order_index: existing.length,
-    deleted: false,
-    created_at: now,
-    updated_at: now,
-  };
-
-  await db.lists.add(list);
-  return list;
-}
-
-export async function renameList(listId, newName) {
-  if (!newName || !newName.trim()) {
-    throw new Error('اسم القائمة مطلوب');
-  }
-  await db.lists.update(listId, { name: newName.trim(), updated_at: nowISO() });
-}
-
-
-/**
- * حذف قائمة (Soft delete) - المهام الجذرية التي كانت بداخلها تُنقل تلقائياً
- * للقائمة الافتراضية "عام" حتى لا "تضيع" أو تصبح بلا قائمة ظاهرة.
- * لا يجوز حذف القائمة الافتراضية نفسها.
- */
-export async function deleteList(listId) {
-  if (listId === DEFAULT_LIST_ID) {
-    throw new Error('لا يمكن حذف القائمة الافتراضية');
-  }
-
-  const now = nowISO();
-
-  await db.transaction('rw', db.lists, db.tasks, async () => {
-    await db.lists.update(listId, { deleted: true, updated_at: now });
-
-    const affectedTasks = await db.tasks.where('list_id').equals(listId).toArray();
-    for (const t of affectedTasks) {
-      await db.tasks.update(t.id, { list_id: DEFAULT_LIST_ID, updated_at: now });
-    }
-  });
 }

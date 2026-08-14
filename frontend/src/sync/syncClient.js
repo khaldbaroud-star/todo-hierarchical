@@ -28,8 +28,9 @@ export async function pushTasks(deviceId, tasks) {
   const data = await res.json();
   return data.synced;
 }
+
 /**
- * سحب القوائم من الخادم.
+ * سحب (pull): يرجع كل قوائم هذا الجهاز المخزّنة على الخادم.
  */
 export async function pullLists(deviceId) {
   const res = await fetch(`${API_BASE}/api/lists?device_id=${encodeURIComponent(deviceId)}`);
@@ -41,7 +42,7 @@ export async function pullLists(deviceId) {
 }
 
 /**
- * دفع القوائم للخادم.
+ * دفع (push): يرسل كل القوائم المحلية للخادم، بنفس منطق last-write-wins.
  */
 export async function pushLists(deviceId, lists) {
   const res = await fetch(`${API_BASE}/api/lists/sync`, {
