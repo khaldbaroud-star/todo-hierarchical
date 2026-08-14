@@ -1,6 +1,8 @@
 // نقاط API:
 // GET  /api/tasks?device_id=xxx        -> يرجع كل مهام هذا الجهاز (سحب/pull)
 // POST /api/tasks/sync                 -> يستقبل { device_id, tasks: [...] } ويحفظها (دفع/push)
+// GET  /api/lists?device_id=xxx        -> يرجع كل قوائم هذا الجهاز (سحب/pull)
+// POST /api/lists/sync                 -> يستقبل { device_id, lists: [...] } ويحفظها (دفع/push)
 //
 // لا يوجد تسجيل دخول أو أي حماية - device_id هو المعرّف الوحيد، حسب تصميم
 // المشروع الأصلي (شخصي، بدون حسابات). هذا يعني أن أي شخص يعرف الـ device_id
@@ -36,17 +38,19 @@ function rowToTask(row) {
     updated_at: row.updated_at,
   };
 }
+
 function rowToList(row) {
   return {
     id: row.id,
     name: row.name,
-    color: row.color,
-    order_index: row.order_index,
+    parent_list_id: row.parent_list_id,
+    order: row.list_order,
     deleted: !!row.deleted,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
 }
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -90,7 +94,7 @@ export default {
           // Last-write-wins: لا نكتب فوق نسخة أحدث أو مطابقة موجودة بالفعل
           if (existing && existing.updated_at >= t.updated_at) continue;
 
-         await env.DB.prepare(
+          await env.DB.prepare(
             `INSERT INTO tasks
                (id, device_id, title, type, parent_id, list_id, due_date, original_due_date,
                 status, is_in_daily_list, deleted, completed_at, created_at, updated_at)
@@ -131,8 +135,8 @@ export default {
 
         return jsonResponse({ synced: syncedCount });
       }
-      
-// ---------- GET /api/lists?device_id=xxx (سحب القوائم) ----------
+
+      // ---------- GET /api/lists?device_id=xxx (سحب) ----------
       if (url.pathname === '/api/lists' && request.method === 'GET') {
         const deviceId = url.searchParams.get('device_id');
         if (!deviceId) return jsonResponse({ error: 'device_id مطلوب' }, 400);
@@ -144,7 +148,7 @@ export default {
         return jsonResponse({ lists: results.map(rowToList) });
       }
 
-      // ---------- POST /api/lists/sync (دفع القوائم) ----------
+      // ---------- POST /api/lists/sync (دفع) ----------
       if (url.pathname === '/api/lists/sync' && request.method === 'POST') {
         const body = await request.json();
         const { device_id, lists } = body;
@@ -156,22 +160,24 @@ export default {
         let syncedCount = 0;
 
         for (const l of lists) {
+          // تجاهل أي سجل ناقص الحقول الأساسية بدل تعطيل كل عملية المزامنة
           if (!l.id || !l.name || !l.updated_at) continue;
 
           const existing = await env.DB.prepare('SELECT updated_at FROM lists WHERE id = ?')
             .bind(l.id)
             .first();
 
+          // Last-write-wins: لا نكتب فوق نسخة أحدث أو مطابقة موجودة بالفعل
           if (existing && existing.updated_at >= l.updated_at) continue;
 
           await env.DB.prepare(
             `INSERT INTO lists
-               (id, device_id, name, color, order_index, deleted, created_at, updated_at)
+               (id, device_id, name, parent_list_id, list_order, deleted, created_at, updated_at)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
              ON CONFLICT(id) DO UPDATE SET
                name = excluded.name,
-               color = excluded.color,
-               order_index = excluded.order_index,
+               parent_list_id = excluded.parent_list_id,
+               list_order = excluded.list_order,
                deleted = excluded.deleted,
                updated_at = excluded.updated_at`
           )
@@ -179,8 +185,8 @@ export default {
               l.id,
               device_id,
               l.name,
-              l.color || null,
-              l.order_index ?? 0,
+              l.parent_list_id || null,
+              l.order || 0,
               l.deleted ? 1 : 0,
               l.created_at,
               l.updated_at
@@ -192,6 +198,7 @@ export default {
 
         return jsonResponse({ synced: syncedCount });
       }
+
       return jsonResponse({ error: 'المسار غير موجود' }, 404);
     } catch (err) {
       return jsonResponse({ error: err.message }, 500);
