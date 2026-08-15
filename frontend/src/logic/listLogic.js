@@ -21,7 +21,7 @@ export async function getChildLists(parentListId = null) {
   return lists.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
-/** يرجع مسار القائمة (breadcrumb) من الجذر وصولاً للقائمة الحالية. */
+/** يرجع مسار القائمة (breadcrumb) من الجذر وصولاً للقائمة الحالية (تشمل نفسها). */
 export async function getListPath(listId) {
   const path = [];
   let current = listId ? await db.lists.get(listId) : null;
@@ -71,6 +71,53 @@ async function collectAllDescendantListIds(listId) {
     ids = ids.concat(await collectAllDescendantListIds(child.id));
   }
   return ids;
+}
+
+/**
+ * ينقل قائمة (listId) لتصبح ضمن أبناء parentListId مباشرة (استخدم null لنقلها
+ * لمستوى الجذر الأعلى)، مع تحديد موضعها بين إخوتها الجدد عبر beforeId: إما id
+ * القائمة التي يجب أن تسبقها القائمة المنقولة مباشرة، أو null لوضعها في آخر
+ * القائمة. تُستخدم هذه الدالة من ميزة السحب والإفلات (hold & drag) في الواجهة،
+ * سواء لإعادة الترتيب بين الإخوة أو لتغيير الأب (النقل بين مستويات مختلفة).
+ */
+export async function moveList(listId, { parentListId = null, beforeId = null } = {}) {
+  if (listId === parentListId) {
+    throw new Error('لا يمكن أن تكون القائمة أباً لنفسها');
+  }
+
+  if (parentListId) {
+    const descendantIds = await collectAllDescendantListIds(listId);
+    if (descendantIds.includes(parentListId)) {
+      throw new Error('لا يمكن نقل قائمة إلى داخل إحدى قوائمها الفرعية');
+    }
+  }
+
+  const now = nowISO();
+  const destSiblings = (await getChildListsRaw(parentListId)).filter((l) => l.id !== listId);
+
+  let insertIndex = destSiblings.length;
+  if (beforeId) {
+    const idx = destSiblings.findIndex((l) => l.id === beforeId);
+    if (idx !== -1) insertIndex = idx;
+  }
+
+  const ordered = [...destSiblings];
+  ordered.splice(insertIndex, 0, { id: listId, __moved: true });
+
+  await db.transaction('rw', db.lists, async () => {
+    for (let i = 0; i < ordered.length; i++) {
+      const entry = ordered[i];
+      if (entry.__moved) {
+        await db.lists.update(listId, {
+          parent_list_id: parentListId,
+          order: i,
+          updated_at: now,
+        });
+      } else if (entry.order !== i) {
+        await db.lists.update(entry.id, { order: i, updated_at: now });
+      }
+    }
+  });
 }
 
 /**
