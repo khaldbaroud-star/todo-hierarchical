@@ -346,6 +346,8 @@ export async function rolloverMissedTasks() {
  * ولو بيوم واحد، بغض النظر متى أُنجزت لاحقاً (أو حتى لو لم تُنجز بعد).
  */
 export function isMissed(task) {
+  if (!task.is_in_daily_list) return false;
+
   const referenceDate = task.completed_at
     ? task.completed_at.slice(0, 10)
     : todayStr();
