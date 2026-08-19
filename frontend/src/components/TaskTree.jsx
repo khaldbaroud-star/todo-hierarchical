@@ -94,7 +94,7 @@ export default function TaskTree({
   depth = 0,
   originLabel,
 }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(task.type === 'composite');
   const [addingChild, setAddingChild] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
 
