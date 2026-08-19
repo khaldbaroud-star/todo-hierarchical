@@ -112,14 +112,7 @@ export default function TaskTree({
   const isProjectHeading = depth === 0 && task.type === 'composite';
 
   async function handleAddChild({ title, type }) {
-    await createTask({
-      title,
-      type,
-      parentId: task.id,
-      dueDate: todayStr(),
-    });
-
-    setAddingChild(false);
+    await createTask({ title, type, parentId: task.id, dueDate: todayStr() });
   }
 
   return (
