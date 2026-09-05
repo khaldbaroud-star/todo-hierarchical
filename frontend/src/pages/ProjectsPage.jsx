@@ -3,7 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, DEFAULT_LIST_ID } from '../db/db';
 import TaskTree from '../components/TaskTree';
 import QuickAdd from '../components/QuickAdd';
-import ListBrowser from '../components/ListBrowser';
+import ListDrawer from '../components/ListDrawer';
 import { createTask } from '../logic/taskLogic';
 
 function todayStr() {
@@ -13,6 +13,12 @@ function todayStr() {
 export default function ProjectsPage() {
   const [currentListId, setCurrentListId] = useState(null);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const currentList = useLiveQuery(
+    () => (currentListId ? db.lists.get(currentListId) : null),
+    [currentListId]
+  );
 
   const rawTasks = useLiveQuery(() => db.tasks.toArray(), []) || [];
   const allTasks = rawTasks.filter((t) => !t.deleted);
@@ -46,7 +52,35 @@ export default function ProjectsPage() {
         قوائمك المتعشّشة، وكل مهامك بداخلها فردية ومركبة بأي عمق تعشيش
       </p>
 
-      <ListBrowser currentListId={currentListId} onNavigate={setCurrentListId} />
+      <button
+        onClick={() => setDrawerOpen(true)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          width: '100%',
+          padding: '10px 14px',
+          marginBottom: 20,
+          border: '1px solid var(--color-line)',
+          borderRadius: 'var(--radius-md)',
+          background: 'var(--color-surface)',
+          fontSize: 15,
+          color: 'var(--color-ink)',
+        }}
+      >
+        <span style={{ fontSize: 16, flexShrink: 0 }}>☰</span>
+        <span style={{ flex: 1, textAlign: 'right', fontWeight: 600 }}>
+          {currentList ? currentList.name : 'اختر قائمة'}
+        </span>
+        <span style={{ color: 'var(--color-ink-soft)', flexShrink: 0 }}>◀</span>
+      </button>
+
+      <ListDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        currentListId={currentListId}
+        onNavigate={setCurrentListId}
+      />
 
       {currentListId === null ? (
         <p style={{ color: 'var(--color-ink-soft)', padding: '12px 4px' }}>
