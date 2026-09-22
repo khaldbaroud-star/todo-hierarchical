@@ -6,3 +6,5 @@ compatibility_date = "2024-09-23"
 binding = "DB"
 database_name = "todo-db"
 database_id = "3493aa06-eb4b-4e41-846c-62e92388a62c"
+[vars]
+GOOGLE_CLIENT_ID = "2066874989-tos3acd82rmura5hcr20cf8lt5qo5nb3.apps.googleusercontent.com"
