@@ -184,6 +184,26 @@ export default function SettingsPage() {
           {message}
         </p>
       )}
+
+      {/* Privacy Policy link */}
+      <div
+        style={{
+          marginTop: 32,
+          paddingTop: 16,
+          borderTop: '1px solid var(--color-line)',
+          textAlign: 'center',
+          fontSize: 13,
+        }}
+      >
+        <a
+          href="/privacy-policy.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'var(--color-ink-soft)' }}
+        >
+          سياسة الخصوصية (Privacy Policy)
+        </a>
+      </div>
     </div>
   );
 }
