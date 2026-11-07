@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+  <title>Privacy Policy | تطبيق المهام الهرمي</title>
+  <meta name="description" content="Privacy Policy for تطبيق المهام الهرمي (Hierarchical Tasks)." />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 40px 20px;
+      background: #f5f5f2;
+      color: #292b27;
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.75;
+    }
+    main {
+      max-width: 850px;
+      margin: auto;
+      padding: 40px;
+      background: white;
+      border-radius: 12px;
+    }
+    h1, h2 { color: #365541; line-height: 1.3; }
+    h1 { margin-top: 0; }
+    h2 { margin-top: 32px; font-size: 1.3rem; }
+    a { color: #365541; }
+    .updated { color: #666; font-size: 0.9rem; }
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      main { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Privacy Policy</h1>
+  <p><strong>تطبيق المهام الهرمي (Hierarchical Tasks)</strong></p>
+  <p class="updated">Last updated: November 7, 2026</p>
+
+  <p>
+    This Privacy Policy explains how تطبيق المهام الهرمي
+    ("the App", "we", "our", or "us") collects, uses, stores,
+    and protects information when you use our hierarchical
+    task management application.
+  </p>
+
+  <h2>1. Information We Collect</h2>
+  <p>
+    The information processed by the App depends on how you use it.
+  </p>
+  <ul>
+    <li>
+      <strong>Tasks and lists:</strong> Task titles, descriptions
+      where provided, due dates, completion status, list names,
+      hierarchical relationships, and related timestamps.
+    </li>
+    <li>
+      <strong>Device identifier:</strong> A randomly generated
+      identifier used to associate data with a device when you
+      use the App without signing in.
+    </li>
+    <li>
+      <strong>Google account information:</strong> If you use
+      Google Sign-In, the App processes your Google account's
+      unique identifier and email address to establish your
+      account identity. Google may also provide basic profile
+      information, such as your name and profile picture, through
+      its authentication service. The current backend does not
+      store the name or profile picture.
+    </li>
+    <li>
+      <strong>Authentication information:</strong> When Google
+      Sign-In is used, the App creates a signed session token
+      containing an account identifier, email address, and
+      session timestamps. The intended session duration is
+      90 days.
+    </li>
+  </ul>
+
+  <h2>2. Local Storage and Synchronization</h2>
+  <p>
+    The App uses IndexedDB in your browser or device, through
+    the Dexie library, to store tasks and lists locally.
+    This allows you to use the App without creating an account
+    or maintaining an internet connection.
+  </p>
+  <p>
+    If synchronization is used, task and list information is
+    transmitted to our backend and stored in a Cloudflare D1
+    database. This allows your information to be retrieved
+    and synchronized across devices using the same account
+    identity or device identifier.
+  </p>
+  <p>
+    Google Sign-In is designed to be optional. Users can use
+    the App without signing in. When signed in, the account
+    identity is used to associate synchronized information
+    with the Google account.
+  </p>
+
+  <h2>3. How We Use Information</h2>
+  <p>We use processed information only as necessary to:</p>
+  <ul>
+    <li>Provide task and list management features.</li>
+    <li>Save and retrieve your tasks and lists.</li>
+    <li>Synchronize information between your devices.</li>
+    <li>Authenticate users who choose Google Sign-In.</li>
+    <li>Maintain the security and operation of the App.</li>
+    <li>Respond to privacy and support requests.</li>
+  </ul>
+
+  <h2>4. Google Sign-In</h2>
+  <p>
+    If you choose to sign in with Google, authentication is
+    provided through Google Identity Services. Google provides
+    an identity token that our backend verifies using Google's
+    public verification keys.
+  </p>
+  <p>
+    We use the Google account's unique identifier and email
+    address to establish your account identity and create
+    an application session. We do not use Google Sign-In to
+    access your Google Drive, Gmail, contacts, or other
+    Google services.
+  </p>
+  <p>
+    Your use of Google authentication is also subject to
+    <a href="https://policies.google.com/privacy" target="_blank"
+       rel="noopener noreferrer">Google's Privacy Policy</a>.
+  </p>
+
+  <h2>5. Third-Party Services</h2>
+  <p>
+    The App relies on the following services for its operation:
+  </p>
+  <ul>
+    <li>
+      <strong>Google:</strong> Provides account authentication
+      when you choose to sign in with Google.
+    </li>
+    <li>
+      <strong>Cloudflare:</strong> Provides the infrastructure
+      used to host the application backend and store synchronized
+      information in Cloudflare D1.
+    </li>
+    <li>
+      <strong>Google Fonts:</strong> The App may load fonts from
+      Google Fonts to display its interface.
+    </li>
+  </ul>
+  <p>
+    These providers may process information as necessary to
+    provide their respective services, subject to their own
+    privacy policies and terms.
+  </p>
+  <p>
+    We do not sell your personal information or use task
+    information for advertising.
+  </p>
+
+  <h2>6. Data Retention and Deletion</h2>
+  <p>
+    Locally stored information remains in your browser or device
+    until you delete it or clear the relevant browser storage.
+    Clearing local storage may remove information that has not
+    been synchronized.
+  </p>
+  <p>
+    Synchronized information may remain in our Cloudflare D1
+    database until it is deleted. Records marked as deleted
+    may be retained as synchronization records rather than
+    being immediately physically erased.
+  </p>
+  <p>
+    You may request deletion of account-associated information
+    by contacting us at the email address below. Please include
+    the Google account email associated with your request.
+    We will review and process deletion requests subject to
+    applicable legal obligations and technical limitations.
+  </p>
+  <p>
+    Signing out does not, by itself, delete locally stored
+    tasks or synchronized information.
+  </p>
+
+  <h2>7. Data Security</h2>
+  <p>
+    We use reasonable technical measures to protect information,
+    including HTTPS connections, server-side verification of
+    Google identity tokens, and signed application session
+    tokens.
+  </p>
+  <p>
+    However, no method of electronic storage or transmission
+    is completely secure. We cannot guarantee absolute security
+    of information.
+  </p>
+
+  <h2>8. Children's Privacy</h2>
+  <p>
+    The App is not specifically directed at children, and we
+    do not knowingly seek to collect personal information
+    from children in violation of applicable privacy laws.
+    If you believe a child has provided personal information
+    that should be deleted, please contact us.
+  </p>
+
+  <h2>9. Your Choices and Rights</h2>
+  <p>
+    Depending on your location and applicable law, you may
+    have rights to request access to, correction of, or deletion
+    of your personal information.
+  </p>
+  <p>
+    You can choose whether to use Google Sign-In. You can also
+    contact us with questions or requests concerning your data.
+  </p>
+
+  <h2>10. Changes to This Privacy Policy</h2>
+  <p>
+    We may update this Privacy Policy when the App's features,
+    data practices, or legal requirements change. The latest
+    version will be published on this page with an updated
+    revision date.
+  </p>
+
+  <h2>11. Contact Us</h2>
+  <p>
+    If you have questions about this Privacy Policy, your
+    personal information, or a data deletion request, contact us:
+  </p>
+  <p>
+    <strong>Email:</strong>
+    <a href="mailto:khaldbaroud@gmail.com">
+      khaldbaroud@gmail.com
+    </a>
+  </p>
+
+</main>
+</body>
+</html>
