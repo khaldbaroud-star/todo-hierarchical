@@ -45,14 +45,19 @@ export default function ProjectsPage() {
     });
   }
 
-  return (
-    <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 20px 60px' }}>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, margin: 0 }}>المشاريع </h1>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 40, margin: 0 }}>المهام الهرمي </h1>
+   return (
+  <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 20px 60px' }}>
+    <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, margin: 0 }}>
+      المهام الهرمي
+    </h1>
 
-      <p style={{ color: 'var(--color-ink-soft)', marginTop: 4, marginBottom: 28 }}>
-        قوائمك المتعشّشة، وكل مهامك بداخلها فردية ومركبة بأي عمق تعشيش
-      </p>
+    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, margin: '16px 0 0' }}>
+      المشاريع
+    </h2>
+
+    <p style={{ color: 'var(--color-ink-soft)', marginTop: 4, marginBottom: 28 }}>
+      القوائم المتعشعشة
+    </p>
 
       <button
         onClick={() => setDrawerOpen(true)}

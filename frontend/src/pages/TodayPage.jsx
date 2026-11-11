@@ -54,14 +54,19 @@ export default function TodayPage() {
     await createTask({ title, type: 'single', parentId: null, dueDate: today, addToDaily: true });
   }
 
-  return (
-    <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 20px 60px' }}>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, margin: 0 }}>اليوم</h1>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 40, margin: 0 }}>المهام الهرمي </h1>
+   return (
+  <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 20px 60px' }}>
+    <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, margin: 0 }}>
+      المهام الهرمي
+    </h1>
 
-      <p style={{ color: 'var(--color-ink-soft)', marginTop: 4, marginBottom: 28 }}>
-        {formatArabicDate(new Date())}
-      </p>
+    <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 24, margin: '16px 0 0' }}>
+      اليوم
+    </h2>
+
+    <p style={{ color: 'var(--color-ink-soft)', marginTop: 4, marginBottom: 28 }}>
+      ماذا حدث اليوم
+    </p>
 
       <QuickAdd onAdd={handleAdd} placeholder="اكتب مهمة جديدة واضغط Enter…" />
 
