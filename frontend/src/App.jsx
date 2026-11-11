@@ -6,10 +6,10 @@ import SettingsPage from './pages/SettingsPage';
 import { syncNow } from './sync/syncEngine';
 
 const TABS = [
-  { key: 'today', label: 'اليوم' },
-  { key: 'projects', label: 'المشاريع' },
-  { key: 'stats', label: 'الإحصائيات' },
-  { key: 'settings', label: 'الإعدادات' },
+  { key: 'today', label: 'اليوم', label: 'المهام الهرمي' },
+  { key: 'projects', label: 'المشاريع', label: 'المهام الهرمي' },
+  { key: 'stats', label: 'الإحصائيات', label: 'المهام الهرمي'},
+  { key: 'settings', label: 'الإعدادات', label: 'المهام الهرمي'},
 ];
 
 const PAGES = {
