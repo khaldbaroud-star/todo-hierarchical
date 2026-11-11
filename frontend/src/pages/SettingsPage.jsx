@@ -95,7 +95,7 @@ export default function SettingsPage() {
 
   return (
     <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 20px 60px' }}>
-      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, margin: 0 }}>الإعدادات</h1>
+      <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 36, margin: 0 }}> المهام الهرمي الإعدادات</h1>
       <p style={{ color: 'var(--color-ink-soft)', marginTop: 4, marginBottom: 28 }}>
         النسخ الاحتياطي وهوية هذا الجهاز
       </p>
